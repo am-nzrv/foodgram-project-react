@@ -18,7 +18,5 @@ class Command(BaseCommand):
 
         except ValueError:
             print('Неопределенное значение.')
-        except Exception:
-            print('Где-то что-то сломалось :(')
         else:
             print('Ингредиенты успешно импортированы.')

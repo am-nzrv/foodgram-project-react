@@ -71,12 +71,12 @@ jobs:
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-            sudo docker-compose up -d --build
-            sudo docker-compose exec backend python manage.py makemigrations
-            sudo docker-compose exec backend python manage.py migrate
-            sudo docker-compose exec backend python manage.py load_tags_data
-            sudo docker-compose exec backend python manage.py load_ingredients_data
-            sudo docker-compose exec backend python manage.py collectstatic --no-input
+            winpty sudo docker-compose up -d --build
+            winpty sudo docker-compose exec backend python manage.py makemigrations
+            winpty sudo docker-compose exec backend python manage.py migrate
+            winpty sudo docker-compose exec backend python manage.py load_tags_data
+            winpty sudo docker-compose exec backend python manage.py load_ingredients_data
+            winpty sudo docker-compose exec backend python manage.py collectstatic --no-input
 
   telegram_message:
     name: Send telegram message

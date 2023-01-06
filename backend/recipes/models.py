@@ -44,6 +44,13 @@ class Ingredients(models.Model):
         verbose_name='Еденица измерения'
     )
 
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return self.name
+
 
 class Recipe(models.Model):
     """Модель для рецептов."""

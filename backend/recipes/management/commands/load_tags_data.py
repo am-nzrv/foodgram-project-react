@@ -16,7 +16,7 @@ class Command(BaseCommand):
             Tag.objects.bulk_create(Tag(**tag) for tag in data)
         except ValueError:
             print('Неопределенное значение.')
-        # except Exception:
-        #     print('Где-то что-то сломалось :(')
+        except Exception:
+            print('Где-то что-то сломалось :(')
         else:
             print('Теги успешно импортированы.')

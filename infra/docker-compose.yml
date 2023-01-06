@@ -3,8 +3,9 @@ services:
 
   db:
     image: postgres:13.3-alpine
+    restart: always
     volumes:
-      - db_data:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
 
@@ -40,6 +41,6 @@ services:
       - frontend
 
 volumes:
-  db_data:
+  postgres_data:
   static_value:
   media_value:

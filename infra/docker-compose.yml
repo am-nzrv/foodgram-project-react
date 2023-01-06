@@ -15,7 +15,7 @@ services:
       - ./.env
 
   backend:
-    image: sayonararf/foodgram_back:latest
+    image: sayonararf/foodgram_backend:latest
     restart: always
     volumes:
       - static_value:/app/static/
@@ -26,7 +26,7 @@ services:
       - ./.env
 
   frontend:
-    image: sayonararf/foodgram_front:latest
+    image: sayonararf/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:

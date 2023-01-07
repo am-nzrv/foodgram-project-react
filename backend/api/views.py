@@ -2,58 +2,60 @@ from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import OuterRef, Exists, BooleanField, Value, Sum
+from django.db.models import BooleanField, Exists, OuterRef, Sum, Value
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import viewsets
+from recipes.models import (FavoriteRecipe, Ingredient, IngredientInRecipe,
+                            Recipe, ShoppingCart, Tag)
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
-
-from api.mixins import ListRetrieveViewSet
-from recipes.models import (Tag, Ingredients,
-                            Recipe, IngredientRecipe,
-                            ShoppingCart, FavoriteRecipe)
 from users.models import Follow
-from .filters import SearchIngredientsFilter, RecipesFilter
-from .permissions import IsAdminAuthorOrReadOnly
-from .serializers import (CheckFavoriteRecipesSerializer,
-                          CheckShoppingCartSerializer,
+
+from .filters import IngredientSearchFilter, RecipeFilter
+from .permissions import IsAdminAuthorOrReadOnly, IsAdminOrReadOnly
+from .serializers import (CheckFavoriteSerializer, CheckShoppingCartSerializer,
                           CheckSubscribeSerializer, FollowSerializer,
                           IngredientSerializer, RecipeAddingSerializer,
-                          ReadRecipeSerializer, WriteRecipeSerializer,
+                          RecipeReadSerializer, RecipeWriteSerializer,
                           TagSerializer)
 
 User = get_user_model()
-FILENAME = 'Your_shopping_cart.txt'
-SHOPPING_CART_HEADER = 'Список покупок:\n\nНаименование - Кол-во/Ед.изм.\n'
+FILENAME = 'shopping_cart.txt'
+HEADER_FILE_CART = 'Мой список покупок:\n\nНаименование - Кол-во/Ед.изм.\n'
+
+
+class ListRetrieveViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
+                          mixins.RetrieveModelMixin):
+    permission_classes = (IsAdminOrReadOnly, )
 
 
 class TagViewSet(ListRetrieveViewSet):
-    """Вьюсет тегов."""
+    """Вьюсет список тегов"""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
-class IngredientsViewSet(ListRetrieveViewSet):
-    """Вьюсет ингредиентов."""
-    queryset = Ingredients.objects.all()
+class IngredientViewSet(ListRetrieveViewSet):
+    """Вьюсет список ингредиентов"""
+    queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    filter_class = SearchIngredientsFilter
+    filter_class = IngredientSearchFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """Вьюсет рецептов."""
+    """Вьюсет для рецепта"""
     permission_classes = (IsAdminAuthorOrReadOnly,)
-    filter_class = RecipesFilter
+    filter_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
-            return ReadRecipeSerializer
-        return WriteRecipeSerializer
+            return RecipeReadSerializer
+        return RecipeWriteSerializer
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
@@ -65,10 +67,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     user=self.request.user, recipe__pk=OuterRef('pk'))
                 )
             )
-        return Recipe.objects.annotate(
-            is_favorited=Value(False, output_field=BooleanField()),
-            is_in_shopping_cart=Value(False, output_field=BooleanField())
-        )
+        else:
+            return Recipe.objects.annotate(
+                is_favorited=Value(False, output_field=BooleanField()),
+                is_in_shopping_cart=Value(False, output_field=BooleanField())
+            )
 
     @transaction.atomic()
     def perform_create(self, serializer):
@@ -84,7 +87,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'recipe': pk,
         }
-        serializer = CheckFavoriteRecipesSerializer(
+        serializer = CheckFavoriteSerializer(
             data=data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
@@ -96,7 +99,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'recipe': pk,
         }
-        serializer = CheckFavoriteRecipesSerializer(
+        serializer = CheckFavoriteSerializer(
             data=data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
@@ -146,13 +149,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['get'], detail=False, permission_classes=[IsAuthenticated]
     )
     def download_shopping_cart(self, request):
-        ingredients = IngredientRecipe.objects.filter(
+        ingredients = IngredientInRecipe.objects.filter(
             recipe__cart__user=request.user
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
         ).order_by('ingredient__name').annotate(total=Sum('amount'))
-        result = SHOPPING_CART_HEADER
+        result = HEADER_FILE_CART
         result += '\n'.join([
             f'{ingredient["ingredient__name"]} - {ingredient["total"]}/'
             f'{ingredient["ingredient__measurement_unit"]}'

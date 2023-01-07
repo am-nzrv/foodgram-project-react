@@ -2,8 +2,7 @@ from django.core.exceptions import ValidationError
 from django_filters.fields import MultipleChoiceField
 from django_filters.rest_framework import CharFilter, FilterSet, filters
 from django_filters.widgets import BooleanWidget
-
-from recipes.models import Ingredients, Recipe
+from recipes.models import Ingredient, Recipe
 
 
 class TagsMultipleChoiceField(
@@ -27,15 +26,15 @@ class TagsFilter(filters.AllValuesMultipleFilter):
     field_class = TagsMultipleChoiceField
 
 
-class SearchIngredientsFilter(FilterSet):
+class IngredientSearchFilter(FilterSet):
     name = CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
-        model = Ingredients
+        model = Ingredient
         fields = ('name',)
 
 
-class RecipesFilter(FilterSet):
+class RecipeFilter(FilterSet):
     author = filters.AllValuesMultipleFilter(
         field_name='author__id',
         label='Автор'
@@ -44,7 +43,7 @@ class RecipesFilter(FilterSet):
         widget=BooleanWidget(),
         label='В корзине.'
     )
-    is_favourite = filters.BooleanFilter(
+    is_favorited = filters.BooleanFilter(
         widget=BooleanWidget(),
         label='В избранных.'
     )
@@ -52,4 +51,4 @@ class RecipesFilter(FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ['author', 'tags', 'is_in_shopping_cart', 'is_favourite']
+        fields = ['author', 'tags', 'is_in_shopping_cart', 'is_favorited']

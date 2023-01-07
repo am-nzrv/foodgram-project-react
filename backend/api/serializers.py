@@ -1,19 +1,21 @@
 from django.contrib.auth import get_user_model
 from django.db.models import F
-from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
-from recipes.models import (FavoriteRecipe, Ingredient, IngredientInRecipe,
-                            Recipe, ShoppingCart, Tag)
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 from rest_framework.validators import UniqueValidator
+
+from recipes.models import (Tag, Ingredients,
+                            Recipe, IngredientRecipe,
+                            ShoppingCart, FavoriteRecipe)
 from users.models import Follow
 
 User = get_user_model()
 
 
 class GetIsSubscribedMixin:
-    """Миксина отображения подписки на пользователя"""
+    """Миксина для отображения подписки на пользователя."""
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
@@ -22,7 +24,7 @@ class GetIsSubscribedMixin:
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
-    """Сериализатор создания пользователя"""
+    """Сериализатор для создания пользователя."""
     email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())])
     username = serializers.CharField(
@@ -37,7 +39,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class CustomUserListSerializer(GetIsSubscribedMixin, UserSerializer):
-    """Сериализатор просмотра пользователя"""
+    """Сериализатор для просмотра пользователя."""
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -48,44 +50,46 @@ class CustomUserListSerializer(GetIsSubscribedMixin, UserSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """Сериализатор для тегов"""
+    """Сериализатор тегов."""
     class Meta:
         model = Tag
         fields = '__all__'
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор для ингредиентов"""
+    """Сериализатор ингредиентов."""
     class Meta:
-        model = Ingredient
+        model = Ingredients
         fields = '__all__'
 
 
-class GetIngredientsMixin:
-    """Миксина для рецептов, получение ингредиентов"""
+class GetIngridietnsMixin:
+    """Получение ингредиентов для рецепта."""
 
     def get_ingredients(self, obj):
         return obj.ingredients.values(
             'id', 'name', 'measurement_unit',
-            amount=F('ingredients_amount__amount')
+            mount=F('ingredients_amount__amount')
         )
 
 
-class RecipeReadSerializer(GetIngredientsMixin, serializers.ModelSerializer):
-    """Сериализатор для чтения рецепта"""
+class ReadRecipeSerializer(GetIngridietnsMixin,
+                           serializers.ModelSerializer):
+    """Сериализатор чтения рецептов."""
     tags = TagSerializer(many=True)
     author = CustomUserListSerializer()
     ingredients = serializers.SerializerMethodField()
     is_favorited = serializers.BooleanField(default=False)
-    is_in_shopping_cart = serializers.BooleanField(default=False)
+    is_in_shop_cart = serializers.BooleanField(default=False)
 
     class Meta:
         model = Recipe
         fields = '__all__'
 
 
-class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
-    """Сериализатор для записи рецепта"""
+class WriteRecipeSerializer(GetIngridietnsMixin,
+                            serializers.ModelSerializer):
+    """Cериализатор записи нового рецепта."""
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all()
@@ -103,15 +107,15 @@ class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
         ingredient_list = []
         if not ingredients:
             raise serializers.ValidationError(
-                'Минимально должен быть 1 ингредиент.'
+                'Хотябы 1 ингредиент.'
             )
         for item in ingredients:
             ingredient = get_object_or_404(
-                Ingredient, id=item['id']
+                Ingredients, id=item['id']
             )
             if ingredient in ingredient_list:
                 raise serializers.ValidationError(
-                    'Ингредиент не должен повторяться.'
+                    'Ингредиенты не должны повторятся.'
                 )
             if int(item.get('amount')) < 1:
                 raise serializers.ValidationError(
@@ -134,8 +138,8 @@ class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
         for tag in tags:
             instance.tags.add(tag)
 
-        IngredientInRecipe.objects.bulk_create([
-            IngredientInRecipe(
+        IngredientRecipe.objects.bulk_create([
+            IngredientRecipe(
                 recipe=instance,
                 ingredient_id=ingredient.get('id'),
                 amount=ingredient.get('amount')
@@ -162,7 +166,7 @@ class RecipeWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
 
 
 class RecipeAddingSerializer(serializers.ModelSerializer):
-    """Сериализатор для добавления рецепта в подписки и корзины"""
+    """Сериализатор добавления рецепта в избранное и корзину."""
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -170,7 +174,7 @@ class RecipeAddingSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
-    """Сериализатор подписки"""
+    """Сериализатор подписки на автора."""
     id = serializers.ReadOnlyField(source='author.id')
     email = serializers.ReadOnlyField(source='author.email')
     username = serializers.ReadOnlyField(source='author.username')
@@ -198,7 +202,7 @@ class FollowSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
 
 
 class CheckSubscribeSerializer(serializers.ModelSerializer):
-    """Сериализатор для проверки подписки"""
+    """Сериализатор проверки подписки на автора."""
     class Meta:
         model = Follow
         fields = ('user', 'author')
@@ -211,31 +215,31 @@ class CheckSubscribeSerializer(serializers.ModelSerializer):
         if self.context.get('request').method == 'POST':
             if user == author:
                 raise serializers.ValidationError(
-                    'Ошибка, на себя подписка не разрешена'
+                    'Нельзя подписываться на себя.'
                 )
             if subscribed:
                 raise serializers.ValidationError(
-                    'Ошибка, вы уже подписались'
+                    'Вы уже подписаны.'
                 )
         if self.context.get('request').method == 'DELETE':
             if user == author:
                 raise serializers.ValidationError(
-                    'Ошибка, отписка от самого себя не разрешена'
+                    'Нельзя отписаться от самого себя.'
                 )
             if not subscribed:
                 raise serializers.ValidationError(
-                    {'errors': 'Ошибка, вы уже отписались'}
+                    {'errors': 'Вы уже отписались от автора.'}
                 )
         return obj
 
 
-class CheckFavoriteSerializer(serializers.ModelSerializer):
-    """Сериализатор для проверки избранного"""
+class CheckFavoriteRecipesSerializer(serializers.ModelSerializer):
+    """Сериализатор проверки избранных рецептов."""
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
     )
     recipe = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all()
+        queryset=FavoriteRecipe.objects.all()
     )
 
     class Meta:
@@ -249,17 +253,17 @@ class CheckFavoriteSerializer(serializers.ModelSerializer):
 
         if self.context.get('request').method == 'POST' and favorite:
             raise serializers.ValidationError(
-                'Этот рецепт уже добавлен в избранном'
+                'Рецепт уже в избранном.'
             )
         if self.context.get('request').method == 'DELETE' and not favorite:
             raise serializers.ValidationError(
-                'Этот рецепт отсутствует в избранном'
+                'Рецепт не в избранном.'
             )
         return obj
 
 
 class CheckShoppingCartSerializer(serializers.ModelSerializer):
-    """Сериализатор для проверки корзины"""
+    """Сериализатор проверки корзины."""
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
     )
@@ -278,10 +282,10 @@ class CheckShoppingCartSerializer(serializers.ModelSerializer):
 
         if self.context.get('request').method == 'POST' and cart:
             raise serializers.ValidationError(
-                'Этот рецепт уже добавлен в корзину'
+                'Рецепт уже в корзине.'
             )
         if self.context.get('request').method == 'DELETE' and not cart:
             raise serializers.ValidationError(
-                'Этот рецепт отсутствует в корзине'
+                'Рецепта нет в корзине.'
             )
         return obj

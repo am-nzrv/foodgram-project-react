@@ -8,7 +8,7 @@ from rest_framework.validators import UniqueValidator
 
 from recipes.models import (Tag, Ingredients,
                             Recipe, IngredientRecipe,
-                            ShoppingCart, FavouriteRecipe)
+                            ShoppingCart, FavoriteRecipe)
 from users.models import Follow
 
 User = get_user_model()
@@ -243,7 +243,7 @@ class CheckFavoriteSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = FavouriteRecipe
+        model = FavoriteRecipe
         fields = ('user', 'recipe')
 
     def validate(self, obj):

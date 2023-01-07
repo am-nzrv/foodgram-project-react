@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from api.mixins import ListRetrieveViewSet
 from recipes.models import (Tag, Ingredients,
                             Recipe, IngredientRecipe,
-                            FavouriteRecipe, ShoppingCart, FavoriteRecipe)
+                            FavoriteRecipe, ShoppingCart, FavoriteRecipe)
 from users.models import Follow
 from .filters import SearchIngredientsFilter, RecipesFilter
 from .permissions import IsAdminAuthorOrReadOnly
@@ -96,11 +96,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'recipe': pk,
         }
-        serializer = CheckFavouriteSerializer(
+        serializer = CheckFavoriteSerializer(
             data=data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
-        return self.delete_object(FavouriteRecipe, request.user, pk)
+        return self.delete_object(FavoriteRecipe, request.user, pk)
 
     @action(
         detail=True,

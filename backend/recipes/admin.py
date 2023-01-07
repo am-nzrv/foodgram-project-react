@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (Tag, Ingredients, IngredientRecipe,
-                     Recipe, FavouriteRecipe, ShoppingCart)
+                     Recipe, FavoriteRecipe, ShoppingCart)
 
 
 @admin.register(Tag)
@@ -30,7 +30,7 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favorites.count()
 
 
-@admin.register(FavouriteRecipe)
+@admin.register(FavoriteRecipe)
 class FavoriteRecipeAdmin(admin.ModelAdmin):
     pass
 

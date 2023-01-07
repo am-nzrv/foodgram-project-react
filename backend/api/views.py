@@ -14,11 +14,11 @@ from rest_framework.response import Response
 from api.mixins import ListRetrieveViewSet
 from recipes.models import (Tag, Ingredients,
                             Recipe, IngredientRecipe,
-                            FavouriteRecipe, ShoppingCart)
+                            FavouriteRecipe, ShoppingCart, FavoriteRecipe)
 from users.models import Follow
 from .filters import SearchIngredientsFilter, RecipesFilter
 from .permissions import IsAdminAuthorOrReadOnly
-from .serializers import (CheckFavouriteSerializer,
+from .serializers import (CheckFavoriteSerializer,
                           ShoppingCartCheckSerializer,
                           CheckSubscribeSerializer, FollowSerializer,
                           IngredientSerializer, RecipeAddingSerializer,
@@ -58,7 +58,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.user.is_authenticated:
             return Recipe.objects.annotate(
-                is_favourite=Exists(FavouriteRecipe.objects.filter(
+                is_favorited=Exists(FavoriteRecipe.objects.filter(
                     user=self.request.user, recipe__pk=OuterRef('pk'))
                 ),
                 is_in_shop_cart=Exists(ShoppingCart.objects.filter(
@@ -66,7 +66,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 )
             )
         return Recipe.objects.annotate(
-            is_favourite=Value(False, output_field=BooleanField()),
+            is_favorited=Value(False, output_field=BooleanField()),
             is_in_shop_cart=Value(False, output_field=BooleanField())
         )
 
@@ -79,18 +79,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['post'],
         permission_classes=[IsAuthenticated]
     )
-    def favourite(self, request, pk=None):
+    def favorite(self, request, pk=None):
         data = {
             'user': request.user.id,
             'recipe': pk,
         }
-        serializer = CheckFavouriteSerializer(
+        serializer = CheckFavoriteSerializer(
             data=data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
-        return self.add_object(FavouriteRecipe, request.user, pk)
+        return self.add_object(FavoriteRecipe, request.user, pk)
 
-    @favourite.mapping.delete
+    @favorite.mapping.delete
     def del_favourite(self, request, pk=None):
         data = {
             'user': request.user.id,
@@ -105,7 +105,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post'],
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated,]
     )
     def shopping_cart(self, request, pk=None):
         data = {

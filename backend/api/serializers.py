@@ -233,7 +233,7 @@ class CheckSubscribeSerializer(serializers.ModelSerializer):
         return obj
 
 
-class CheckFavouriteSerializer(serializers.ModelSerializer):
+class CheckFavoriteSerializer(serializers.ModelSerializer):
     """Сериализатор проверки избранных рецептов."""
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
@@ -249,13 +249,13 @@ class CheckFavouriteSerializer(serializers.ModelSerializer):
     def validate(self, obj):
         user = self.context['request'].user
         recipe = obj['recipe']
-        favourite = user.favourites.filter(recipe=recipe).exists()
+        favorite = user.favourites.filter(recipe=recipe).exists()
 
-        if self.context.get('request').method == 'POST' and favourite:
+        if self.context.get('request').method == 'POST' and favorite:
             raise serializers.ValidationError(
                 'Рецепт уже в избранном.'
             )
-        if self.context.get('request').method == 'DELETE' and not favourite:
+        if self.context.get('request').method == 'DELETE' and not favorite:
             raise serializers.ValidationError(
                 'Рецепт не в избранном.'
             )

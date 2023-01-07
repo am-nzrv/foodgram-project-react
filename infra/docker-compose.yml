@@ -3,6 +3,10 @@ services:
 
   db:
     image: postgres:13.0-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    user: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
@@ -20,7 +24,7 @@ services:
       - ./.env
 
   frontend:
-    image: sayonararf/foodgram_front:latest
+    image: sayonararf/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
@@ -37,7 +41,7 @@ services:
       - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
-      - frontend
+      - backend
 
 volumes:
   postgres_data:

@@ -12,14 +12,14 @@ class Tag(models.Model):
         verbose_name='Название тега',
         unique=True
     )
-    slug = models.SlugField(
-        max_length=50,
-        verbose_name='Адресная ссылка',
-        unique=True
-    )
     colour = models.CharField(
         max_length=7,
         verbose_name='Цвет',
+        unique=True
+    )
+    slug = models.SlugField(
+        max_length=50,
+        verbose_name='Адресная ссылка',
         unique=True
     )
 

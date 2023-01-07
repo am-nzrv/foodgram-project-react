@@ -42,3 +42,10 @@ python manage.py runserver
                                      It's done when it's done
 
 Но потом, проект будет доступен по адресу: [http://51.250.107.160/](http://51.250.107.160/)
+
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=foodgram
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+DB_HOST=db
+DB_PORT=5432

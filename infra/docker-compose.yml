@@ -14,7 +14,6 @@ services:
 
   backend:
     image: sayonararf/foodgram_backend:latest
-    restart: always
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/

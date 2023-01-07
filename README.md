@@ -37,7 +37,6 @@ python manage.py runserver
 ```
 
 ## Запуск проект в контейнерах:
-                      
 
                                      It's done when it's done
 

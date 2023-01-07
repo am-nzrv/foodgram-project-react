@@ -91,7 +91,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return self.add_object(FavoriteRecipe, request.user, pk)
 
     @favorite.mapping.delete
-    def del_favourite(self, request, pk=None):
+    def del_favorite(self, request, pk=None):
         data = {
             'user': request.user.id,
             'recipe': pk,

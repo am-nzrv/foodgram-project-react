@@ -38,18 +38,18 @@ class SearchIngredientsFilter(FilterSet):
 class RecipesFilter(FilterSet):
     author = filters.AllValuesMultipleFilter(
         field_name='author__id',
-        label='Автор'
+        label='Автор.'
     )
     is_in_shopping_cart = filters.BooleanFilter(
         widget=BooleanWidget(),
-        label='В корзине.'
+        label='В списке покупок.'
     )
-    is_favourite = filters.BooleanFilter(
+    is_favorited = filters.BooleanFilter(
         widget=BooleanWidget(),
-        label='В избранных.'
+        label='В избранных рецептах.'
     )
     tags = TagsFilter(field_name='tags__slug')
 
     class Meta:
         model = Recipe
-        fields = ['author', 'tags', 'is_in_shopping_cart', 'is_favourite']
+        fields = ['author', 'tags', 'is_in_shopping_cart', 'is_favorited']

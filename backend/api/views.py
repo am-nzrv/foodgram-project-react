@@ -105,7 +105,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post'],
-        permission_classes=[IsAuthenticated,]
+        permission_classes=[IsAuthenticated]
     )
     def shopping_cart(self, request, pk=None):
         data = {

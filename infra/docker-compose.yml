@@ -22,12 +22,12 @@ services:
     env_file:
       - ./.env
 
-  frontend:
-    image: sayonararf/foodgram_frontend:latest
-    volumes:
-      - ../frontend/:/app/result_build/
-    depends_on:
-      - backend
+#  frontend:
+#    image: sayonararf/foodgram_frontend:latest
+#    volumes:
+#      - ../frontend/:/app/result_build/
+#    depends_on:
+#      - backend
 
   nginx:
     image: nginx:1.19.3

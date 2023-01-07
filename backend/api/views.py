@@ -12,12 +12,12 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from api.mixins import ListRetrieveViewSet
-from api.permissions import IsAdminAuthorOrReadOnly
 from recipes.models import (Tag, Ingredients,
                             Recipe, IngredientRecipe,
                             FavouriteRecipe, ShoppingCart)
 from users.models import Follow
 from .filters import SearchIngredientsFilter, RecipesFilter
+from .permissions import IsAdminAuthorOrReadOnly
 from .serializers import (CheckFavouriteSerializer,
                           ShoppingCartCheckSerializer,
                           CheckSubscribeSerializer, FollowSerializer,
@@ -26,7 +26,7 @@ from .serializers import (CheckFavouriteSerializer,
                           TagSerializer)
 
 User = get_user_model()
-FILENAME = 'shopping_cart.txt'
+FILENAME = 'Your_shopping_cart.txt'
 SHOPPING_CART_HEADER = 'Список покупок:\n\nНаименование - Кол-во/Ед.изм.\n'
 
 
@@ -46,7 +46,7 @@ class IngredientsViewSet(ListRetrieveViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """Вбюсет рецептов."""
+    """Вьюсет рецептов."""
     permission_classes = (IsAdminAuthorOrReadOnly,)
     filter_class = RecipesFilter
 
@@ -58,16 +58,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.user.is_authenticated:
             return Recipe.objects.annotate(
-                is_favoruite=Exists(FavouriteRecipe.objects.filter(
+                is_favourite=Exists(FavouriteRecipe.objects.filter(
                     user=self.request.user, recipe__pk=OuterRef('pk'))
                 ),
-                is_in_shopping_cart=Exists(ShoppingCart.objects.filter(
+                is_in_shop_cart=Exists(ShoppingCart.objects.filter(
                     user=self.request.user, recipe__pk=OuterRef('pk'))
                 )
             )
         return Recipe.objects.annotate(
             is_favourite=Value(False, output_field=BooleanField()),
-            is_in_shopping_cart=Value(False, output_field=BooleanField())
+            is_in_shop_cart=Value(False, output_field=BooleanField())
         )
 
     @transaction.atomic()

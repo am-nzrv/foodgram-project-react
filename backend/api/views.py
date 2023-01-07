@@ -14,12 +14,12 @@ from rest_framework.response import Response
 from api.mixins import ListRetrieveViewSet
 from recipes.models import (Tag, Ingredients,
                             Recipe, IngredientRecipe,
-                            FavoriteRecipe, ShoppingCart, FavoriteRecipe)
+                            ShoppingCart, FavoriteRecipe)
 from users.models import Follow
 from .filters import SearchIngredientsFilter, RecipesFilter
 from .permissions import IsAdminAuthorOrReadOnly
-from .serializers import (CheckFavoriteSerializer,
-                          ShoppingCartCheckSerializer,
+from .serializers import (CheckFavoriteRecipesSerializer,
+                          CheckShoppingCartSerializer,
                           CheckSubscribeSerializer, FollowSerializer,
                           IngredientSerializer, RecipeAddingSerializer,
                           ReadRecipeSerializer, WriteRecipeSerializer,
@@ -61,13 +61,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 is_favorited=Exists(FavoriteRecipe.objects.filter(
                     user=self.request.user, recipe__pk=OuterRef('pk'))
                 ),
-                is_in_shop_cart=Exists(ShoppingCart.objects.filter(
+                is_in_shopping_cart=Exists(ShoppingCart.objects.filter(
                     user=self.request.user, recipe__pk=OuterRef('pk'))
                 )
             )
         return Recipe.objects.annotate(
             is_favorited=Value(False, output_field=BooleanField()),
-            is_in_shop_cart=Value(False, output_field=BooleanField())
+            is_in_shopping_cart=Value(False, output_field=BooleanField())
         )
 
     @transaction.atomic()
@@ -84,7 +84,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'recipe': pk,
         }
-        serializer = CheckFavoriteSerializer(
+        serializer = CheckFavoriteRecipesSerializer(
             data=data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
@@ -96,7 +96,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'recipe': pk,
         }
-        serializer = CheckFavoriteSerializer(
+        serializer = CheckFavoriteRecipesSerializer(
             data=data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
@@ -112,7 +112,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'recipe': pk,
         }
-        serializer = ShoppingCartCheckSerializer(
+        serializer = CheckShoppingCartSerializer(
             data=data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
@@ -124,7 +124,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'user': request.user.id,
             'recipe': pk,
         }
-        serializer = ShoppingCartCheckSerializer(
+        serializer = CheckShoppingCartSerializer(
             data=data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)

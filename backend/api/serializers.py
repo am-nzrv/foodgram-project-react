@@ -233,7 +233,7 @@ class CheckSubscribeSerializer(serializers.ModelSerializer):
         return obj
 
 
-class CheckFavoriteSerializer(serializers.ModelSerializer):
+class CheckFavoriteRecipesSerializer(serializers.ModelSerializer):
     """Сериализатор проверки избранных рецептов."""
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
@@ -262,7 +262,7 @@ class CheckFavoriteSerializer(serializers.ModelSerializer):
         return obj
 
 
-class ShoppingCartCheckSerializer(serializers.ModelSerializer):
+class CheckShoppingCartSerializer(serializers.ModelSerializer):
     """Сериализатор проверки корзины."""
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()

@@ -67,11 +67,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     user=self.request.user, recipe__pk=OuterRef('pk'))
                 )
             )
-        else:
-            return Recipe.objects.annotate(
-                is_favorited=Value(False, output_field=BooleanField()),
-                is_in_shopping_cart=Value(False, output_field=BooleanField())
-            )
+        return Recipe.objects.annotate(
+            is_favorited=Value(False, output_field=BooleanField()),
+            is_in_shopping_cart=Value(False, output_field=BooleanField())
+        )
 
     @transaction.atomic()
     def perform_create(self, serializer):

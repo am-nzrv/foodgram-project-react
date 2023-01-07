@@ -12,7 +12,7 @@ class Tag(models.Model):
         verbose_name='Название тега',
         unique=True
     )
-    colour = models.CharField(
+    color = models.CharField(
         max_length=7,
         verbose_name='Цвет',
         unique=True

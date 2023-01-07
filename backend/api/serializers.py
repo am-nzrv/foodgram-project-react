@@ -239,7 +239,7 @@ class CheckFavoriteRecipesSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
     recipe = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all()
+        queryset=FavoriteRecipe.objects.all()
     )
 
     class Meta:

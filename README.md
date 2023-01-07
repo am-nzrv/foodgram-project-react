@@ -14,9 +14,11 @@
 
 #### Установка окружения и зависимостей.
 
-> python -m venv venv 
-> source venv/Scripts/activate (venv/bin/activate)
-> cd backend/ pip install -r requirements.txt
+>     python -m venv venv 
+> 
+>     source venv/Scripts/activate (venv/bin/activate)
+> 
+>     cd backend/ pip install -r requirements.txt
 
 #### Создадим env-файла для dev-режима:
 

@@ -20,7 +20,7 @@
 > 
 >     cd backend/ pip install -r requirements.txt
 
-#### Создадим env-файла для dev-режима:
+#### Создадим env-файл для dev-режима:
 
 >     echo '''DB_ENGINE=django.db.backends.sqlite3
 >     DB_NAME=db.sqlite3
@@ -62,8 +62,8 @@
 >     docker-compose exec backend python manage.py migrate
 >     docker-compose exec backend python manage.py collectstatic --no-input
 >     docker-compose exec backend python manage.py createsuperuser
->     docker-compose exec backend python manage.py load_tags
->     docker-compose exec backend python manage.py load_ingredients
+>     docker-compose exec backend python manage.py load_tags_data
+>     docker-compose exec backend python manage.py load_ingredients_data
 
 
 ## Деплой на сервере Яндекс.Облака                         

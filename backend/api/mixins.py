@@ -27,5 +27,3 @@ class ListRetrieveViewSet(viewsets.GenericViewSet,
                           mixins.ListModelMixin,
                           mixins.RetrieveModelMixin):
     permission_classes = (IsAdminOrReadOnly, )
-
-

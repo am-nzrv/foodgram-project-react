@@ -27,7 +27,7 @@ from .serializers import (CheckFavoriteRecipesSerializer,
 
 User = get_user_model()
 FILENAME = 'Your_shopping_cart.txt'
-SHOPPING_CART_HEADER = 'Список покупок:\n\nНаименование - Кол-во/Ед.изм.\n'
+SHOPPING_CART_HEADER = 'Ваш список покупок:\n\nПродукт - Кол-во/Ед.изм.\n'
 
 
 class TagViewSet(ListRetrieveViewSet):

@@ -27,7 +27,7 @@ class TagsFilter(filters.AllValuesMultipleFilter):
     field_class = TagsMultipleChoiceField
 
 
-class IngredientsSearchFilter(FilterSet):
+class SearchIngredientsFilter(FilterSet):
     name = CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:

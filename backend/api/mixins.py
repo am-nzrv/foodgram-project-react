@@ -4,6 +4,14 @@ from rest_framework import viewsets, mixins
 from api.permissions import IsAdminOrReadOnly
 
 
+class GetIsSubscribedMixin:
+    """Миксина для отображения подписки на пользователя."""
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return user.follower.filter(author=obj.id).exists()
+
 class GetIngredientsMixin:
     """Получение ингредиентов для рецепта."""
 
@@ -14,18 +22,7 @@ class GetIngredientsMixin:
         )
 
 
-class IsUserSubscribedMixin:
-    """Миксина для отображения подписки на пользователя."""
-    def get_is_user_subscribed(self, obj):
-        user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return user.follower.filter(author=obj.id).exists()
-
-
 class ListRetrieveViewSet(viewsets.GenericViewSet,
                           mixins.ListModelMixin,
                           mixins.RetrieveModelMixin):
     permission_classes = (IsAdminOrReadOnly, )
-
-

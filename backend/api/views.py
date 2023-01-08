@@ -16,18 +16,18 @@ from recipes.models import (Tag, Ingredients,
                             Recipe, IngredientRecipe,
                             ShoppingCart, FavoriteRecipe)
 from users.models import Follow
-from .filters import IngredientsSearchFilter, RecipesFilter
+from .filters import SearchIngredientsFilter, RecipesFilter
 from .permissions import IsAdminAuthorOrReadOnly
 from .serializers import (CheckFavoriteRecipesSerializer,
                           CheckShoppingCartSerializer,
                           CheckSubscribeSerializer, FollowSerializer,
-                          IngredientsSerializer, RecipeAddingSerializer,
+                          IngredientSerializer, RecipeAddingSerializer,
                           ReadRecipeSerializer, WriteRecipeSerializer,
                           TagSerializer)
 
 User = get_user_model()
 FILENAME = 'Your_shopping_cart.txt'
-SHOPPING_CART_TEXT = 'Cписок покупок:\n\nНазвание - Ед.изм/кол-во.\n'
+SHOPPING_CART_HEADER = 'Список покупок:\n\nНаименование - Кол-во/Ед.изм.\n'
 
 
 class TagViewSet(ListRetrieveViewSet):
@@ -40,9 +40,9 @@ class TagViewSet(ListRetrieveViewSet):
 class IngredientsViewSet(ListRetrieveViewSet):
     """Вьюсет ингредиентов."""
     queryset = Ingredients.objects.all()
-    serializer_class = IngredientsSerializer
+    serializer_class = IngredientSerializer
     pagination_class = None
-    filter_class = IngredientsSearchFilter
+    filter_class = SearchIngredientsFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -152,7 +152,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).order_by('ingredient__name').annotate(total=Sum('amount'))
-        result = SHOPPING_CART_TEXT
+        result = SHOPPING_CART_HEADER
         result += '\n'.join([
             f'{ingredient["ingredient__name"]} - {ingredient["total"]}/'
             f'{ingredient["ingredient__measurement_unit"]}'

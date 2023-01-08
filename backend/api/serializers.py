@@ -1,12 +1,11 @@
 from django.contrib.auth import get_user_model
-
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from rest_framework.validators import UniqueValidator
 
-from api.mixins import GetIngredientsMixin, IsUserSubscribedMixin
+from api.mixins import GetIsSubscribedMixin, GetIngredientsMixin
 from recipes.models import (Tag, Ingredients,
                             Recipe, IngredientRecipe,
                             ShoppingCart, FavoriteRecipe)
@@ -30,7 +29,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
                   'password',)
 
 
-class CustomUserListSerializer(IsUserSubscribedMixin, UserSerializer):
+class CustomUserListSerializer(GetIsSubscribedMixin, UserSerializer):
     """Сериализатор для просмотра пользователя."""
     is_subscribed = serializers.SerializerMethodField()
 
@@ -48,7 +47,7 @@ class TagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class IngredientsSerializer(serializers.ModelSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиентов."""
     class Meta:
         model = Ingredients
@@ -57,7 +56,7 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
 class ReadRecipeSerializer(GetIngredientsMixin,
                            serializers.ModelSerializer):
-    """Сериализатор просмотра рецептов."""
+    """Сериализатор чтения рецептов."""
     tags = TagSerializer(many=True)
     author = CustomUserListSerializer()
     ingredients = serializers.SerializerMethodField()
@@ -69,7 +68,7 @@ class ReadRecipeSerializer(GetIngredientsMixin,
         fields = '__all__'
 
 
-class WriteRecipeSerializer(GetIngredientsMixin,
+class WriteRecipeSerializer(GetIngridietnsMixin,
                             serializers.ModelSerializer):
     """Cериализатор записи нового рецепта."""
     tags = serializers.PrimaryKeyRelatedField(
@@ -155,7 +154,7 @@ class RecipeAddingSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class FollowSerializer(IsUserSubscribedMixin, serializers.ModelSerializer):
+class FollowSerializer(GetIsSubscribedMixin, serializers.ModelSerializer):
     """Сериализатор подписки на автора."""
     id = serializers.ReadOnlyField(source='author.id')
     email = serializers.ReadOnlyField(source='author.email')
@@ -197,7 +196,7 @@ class CheckSubscribeSerializer(serializers.ModelSerializer):
         if self.context.get('request').method == 'POST':
             if user == author:
                 raise serializers.ValidationError(
-                    'Нельзя подписаться на себя.'
+                    'Нельзя подписываться на себя.'
                 )
             if subscribed:
                 raise serializers.ValidationError(

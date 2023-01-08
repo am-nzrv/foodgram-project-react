@@ -12,6 +12,7 @@ class GetIsSubscribedMixin:
             return False
         return user.follower.filter(author=obj.id).exists()
 
+
 class GetIngredientsMixin:
     """Получение ингредиентов для рецепта."""
 

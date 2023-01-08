@@ -68,7 +68,7 @@ class ReadRecipeSerializer(GetIngredientsMixin,
         fields = '__all__'
 
 
-class WriteRecipeSerializer(GetIngridietnsMixin,
+class WriteRecipeSerializer(GetIngredientsMixin,
                             serializers.ModelSerializer):
     """Cериализатор записи нового рецепта."""
     tags = serializers.PrimaryKeyRelatedField(

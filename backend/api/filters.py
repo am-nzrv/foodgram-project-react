@@ -27,8 +27,7 @@ from recipes.models import Ingredients, Recipe
 # class TagsFilter(filters.AllValuesMultipleFilter):
 #     field_class = TagsMultipleChoiceField
 
-
-class TagsFilter(filters.AllValuesMultipleFilter):
+class TagsFilter(MultipleChoiceFilter):
     field_class = TypedMultipleChoiceField
 
 

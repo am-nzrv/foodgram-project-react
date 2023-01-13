@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import OuterRef, Exists, BooleanField, Value, Sum
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -48,6 +49,7 @@ class IngredientsViewSet(ListRetrieveViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет рецептов."""
     permission_classes = (IsAdminAuthorOrReadOnly,)
+    filter_backends = [DjangoFilterBackend]
     filter_class = RecipesFilter
 
     def get_serializer_class(self):
@@ -92,14 +94,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @favorite.mapping.delete
     def del_favorite(self, request, pk=None):
-        data = {
-            'user': request.user.id,
-            'recipe': pk,
-        }
-        serializer = CheckFavoriteRecipesSerializer(
-            data=data, context={'request': request}
-        )
-        serializer.is_valid(raise_exception=True)
         return self.delete_object(FavoriteRecipe, request.user, pk)
 
     @action(
@@ -193,15 +187,6 @@ class FollowViewSet(UserViewSet):
     def del_subscribe(self, request, id=None):
         user = request.user
         author = get_object_or_404(User, pk=id)
-        data = {
-            'user': user.id,
-            'author': author.id,
-        }
-        serializer = CheckSubscribeSerializer(
-            data=data,
-            context={'request': request},
-        )
-        serializer.is_valid(raise_exception=True)
         user.follower.filter(author=author).delete()
         return Response(status=HTTPStatus.NO_CONTENT)
 

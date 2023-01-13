@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
-from django.forms import TypedMultipleChoiceField
-from django_filters import MultipleChoiceFilter
+from django.forms.fields import TypedMultipleChoiceField
+from django_filters import TypedMultipleChoiceFilter
+
 from django_filters.fields import MultipleChoiceField
 from django_filters.rest_framework import CharFilter, FilterSet, filters
 from django_filters.widgets import BooleanWidget
@@ -8,8 +9,7 @@ from django_filters.widgets import BooleanWidget
 from recipes.models import Ingredients, Recipe
 
 
-class TagsMultipleChoiceField(
-        MultipleChoiceField):
+class TagsMultipleChoiceField(TypedMultipleChoiceField):
     def validate(self, value):
         if self.required and not value:
             raise ValidationError(
@@ -28,9 +28,6 @@ class TagsMultipleChoiceField(
 class TagsFilter(filters.AllValuesMultipleFilter):
     field_class = TagsMultipleChoiceField
 
-# class TagsFilter(MultipleChoiceFilter):
-#     field_class = TypedMultipleChoiceField
-
 
 class SearchIngredientsFilter(FilterSet):
     name = CharFilter(field_name='name', lookup_expr='icontains')
@@ -45,6 +42,9 @@ class RecipesFilter(FilterSet):
         field_name='author__id',
         label='Автор.'
     )
+    tags = TagsFilter(
+        field_name='tags__slug',
+    )
     is_in_shopping_cart = filters.BooleanFilter(
         widget=BooleanWidget(),
         label='В списке покупок.'
@@ -53,7 +53,6 @@ class RecipesFilter(FilterSet):
         widget=BooleanWidget(),
         label='В избранных рецептах.'
     )
-    tags = TagsFilter(field_name='tags__slug')
 
     class Meta:
         model = Recipe

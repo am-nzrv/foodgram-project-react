@@ -1,5 +1,5 @@
 # Продуктовый помощник (дипломный проект)
-
+![Foodgram workflow status](https://github.com/gomunculusigor/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 
 

@@ -24,6 +24,7 @@ class TagsMultipleChoiceField(
                     params={'value': val},
                 )
 
+
 class TagsFilter(filters.AllValuesMultipleFilter):
     field_class = TagsMultipleChoiceField
 

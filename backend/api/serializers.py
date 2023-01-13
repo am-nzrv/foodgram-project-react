@@ -3,7 +3,6 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
-from rest_framework.validators import UniqueValidator
 
 from api.mixins import GetIsSubscribedMixin, GetIngredientsMixin
 from recipes.models import (Tag, Ingredients,

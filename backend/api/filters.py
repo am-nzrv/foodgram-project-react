@@ -1,8 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.forms.fields import TypedMultipleChoiceField
-from django_filters import TypedMultipleChoiceFilter
-
-from django_filters.fields import MultipleChoiceField
 from django_filters.rest_framework import CharFilter, FilterSet, filters
 from django_filters.widgets import BooleanWidget
 

@@ -16,12 +16,12 @@ User = get_user_model()
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     """Сериализатор для создания пользователя."""
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())])
-    username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all())])
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
+    # email = serializers.EmailField(
+    #     validators=[UniqueValidator(queryset=User.objects.all())])
+    # username = serializers.CharField(
+    #     validators=[UniqueValidator(queryset=User.objects.all())])
+    # first_name = serializers.CharField()
+    # last_name = serializers.CharField()
 
     class Meta:
         model = User

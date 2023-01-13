@@ -143,7 +143,6 @@ class IngredientRecipe(models.Model):
 
 class FavoriteRecipe(models.Model):
     """Модель для любимого репецта."""
-    objects = None
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
